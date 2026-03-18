@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | Fingertip fracture</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+        #unity-loading-bar {
+            display: none !important;
+        }
+
+        #unity-warning {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="unity-container" class="unity-desktop">
+        <canvas id="unity-canvas" width=1440 height=810 tabindex="-1"></canvas>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">Fingertip fracture</div>
+    </div>
+    <script>
+
+        var container = document.querySelector("#unity-container");
+        var canvas = document.querySelector("#unity-canvas");
+        var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+
+        var buildUrl = "Build";
+        var loaderUrl = buildUrl + "/Fingertip Fracture.loader.js";
+        var config = {
+            dataUrl: buildUrl + "/Fingertip Fracture.data",
+            frameworkUrl: buildUrl + "/Fingertip Fracture.framework.js",
+            codeUrl: buildUrl + "/Fingertip Fracture.wasm",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "Fingertip fracture",
+            productVersion: "0.1",
+        };
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            var meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+            container.className = "unity-mobile";
+            canvas.className = "unity-mobile";
+        } else {
+            canvas.style.width = "1440px";
+            canvas.style.height = "810px";
+        }
+
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+            }).then((unityInstance) => {
+                fullscreenButton.onclick = () => {
+                    unityInstance.SetFullscreen(1);
+                };
+            }).catch((message) => {
+                alert(message);
+            });
+        };
+
+        document.body.appendChild(script);
+
+    </script>
+</body>
+</html>
