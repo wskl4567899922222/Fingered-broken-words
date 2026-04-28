@@ -3,70 +3,68 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
     <title>Unity WebGL Player | Fingertip fracture</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
+
     <style>
-        #unity-loading-bar {
-            display: none !important;
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            background: #fff;
         }
 
-        #unity-warning {
-            display: none !important;
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #unity-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+        }
+
+        #unity-canvas {
+            aspect-ratio: 16 / 9;
+            width: min(100vw, 177.7778vh);
+            height: min(56.25vw, 100vh);
+            background: #1F1F20;
+            display: block;
         }
     </style>
 </head>
+
 <body>
-    <div id="unity-container" class="unity-desktop">
-        <canvas id="unity-canvas" width=1440 height=810 tabindex="-1"></canvas>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Fingertip fracture</div>
+    <div id="unity-container">
+        <canvas id="unity-canvas" width="1920" height="1080" tabindex="-1"></canvas>
     </div>
+
+    <script src="Build/Fingertip Fracture.loader.js"></script>
     <script>
+        const canvas = document.querySelector("#unity-canvas");
 
-        var container = document.querySelector("#unity-container");
-        var canvas = document.querySelector("#unity-canvas");
-        var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-
-        var buildUrl = "Build";
-        var loaderUrl = buildUrl + "/Fingertip Fracture.loader.js";
-        var config = {
-            dataUrl: buildUrl + "/Fingertip Fracture.data",
-            frameworkUrl: buildUrl + "/Fingertip Fracture.framework.js",
-            codeUrl: buildUrl + "/Fingertip Fracture.wasm",
+        createUnityInstance(canvas, {
+            dataUrl: "Build/Fingertip Fracture.data",
+            frameworkUrl: "Build/Fingertip Fracture.framework.js",
+            codeUrl: "Build/Fingertip Fracture.wasm",
             streamingAssetsUrl: "StreamingAssets",
             companyName: "DefaultCompany",
             productName: "Fingertip fracture",
-            productVersion: "0.1",
-        };
+            productVersion: "1.0",
 
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-            var meta = document.createElement('meta');
-            meta.name = 'viewport';
-            meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-            document.getElementsByTagName('head')[0].appendChild(meta);
-            container.className = "unity-mobile";
-            canvas.className = "unity-mobile";
-        } else {
-            canvas.style.width = "1440px";
-            canvas.style.height = "810px";
-        }
+            // 保持 Unity 渲染尺寸跟随 Canvas 显示尺寸
+            matchWebGLToCanvasSize: true,
 
-        var script = document.createElement("script");
-        script.src = loaderUrl;
-        script.onload = () => {
-            createUnityInstance(canvas, config, (progress) => {
-            }).then((unityInstance) => {
-                fullscreenButton.onclick = () => {
-                    unityInstance.SetFullscreen(1);
-                };
-            }).catch((message) => {
-                alert(message);
-            });
-        };
-
-        document.body.appendChild(script);
-
+            // 如果想降低高分屏压力，可以打开这一行
+            // devicePixelRatio: 1,
+        });
     </script>
 </body>
 </html>
