@@ -165,20 +165,12 @@
             animation: titleFloat 3.2s ease-in-out infinite;
         }
 
+            /* 已去掉原来的模糊横向光带 */
             .title-wrap::after {
-                content: '';
-                position: absolute;
-                left: -4%;
-                right: -4%;
-                top: 48%;
-                height: 16px;
-                background: linear-gradient( 90deg, transparent 0%, rgba(255, 120, 246, 0.22) 45%, rgba(0, 255, 255, 0.22) 55%, transparent 100% );
-                filter: blur(0.6px);
-                transform: translateY(-50%);
-                animation: sweep 2.2s ease-in-out infinite;
-                pointer-events: none;
+                display: none;
             }
 
+        /* 游戏标题 */
         .game-title {
             position: relative;
             font-size: clamp(3rem, 10vw, 7rem);
@@ -190,9 +182,10 @@
             background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: gradientText 3s linear infinite, titlePulse 1.8s ease-in-out infinite;
-            text-shadow: 0 0 30px rgba(255, 0, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.5), 0 0 90px rgba(255, 0, 255, 0.3);
+            text-shadow: 0 0 10px rgba(255, 0, 255, 0.55), 0 0 20px rgba(0, 255, 255, 0.25);
             letter-spacing: 0.15em;
             margin: 0;
+            overflow: hidden;
         }
 
             .game-title::before,
@@ -204,23 +197,50 @@
                 width: 100%;
                 height: 100%;
                 pointer-events: none;
-                mix-blend-mode: screen;
-                opacity: 0.65;
             }
 
+            /* 文字扫光层 */
             .game-title::before {
-                color: rgba(0, 255, 255, 0.9);
-                transform: translate(2px, 0);
-                clip-path: inset(0 0 48% 0);
-                animation: glitchA 1.25s steps(2, end) infinite;
+                z-index: 3;
+                background: linear-gradient( 110deg, transparent 0%, transparent 36%, rgba(255, 255, 255, 0.95) 46%, rgba(0, 255, 255, 0.95) 50%, rgba(255, 255, 255, 0.95) 54%, transparent 64%, transparent 100% );
+                background-size: 220% 100%;
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                animation: textShine 2.4s ease-in-out infinite;
+                mix-blend-mode: screen;
             }
 
+            /* 轻微故障层 */
             .game-title::after {
-                color: rgba(255, 75, 232, 0.88);
+                z-index: 2;
+                color: rgba(255, 75, 232, 0.45);
+                -webkit-text-fill-color: rgba(255, 75, 232, 0.45);
                 transform: translate(-2px, 0);
-                clip-path: inset(52% 0 0 0);
+                clip-path: inset(54% 0 0 0);
                 animation: glitchB 1.1s steps(2, end) infinite;
+                mix-blend-mode: screen;
             }
+
+        @keyframes textShine {
+            0% {
+                background-position: 160% center;
+                opacity: 0;
+            }
+
+            18% {
+                opacity: 1;
+            }
+
+            52% {
+                opacity: 1;
+            }
+
+            100% {
+                background-position: -80% center;
+                opacity: 0;
+            }
+        }
 
         @keyframes gradientText {
             0% {
@@ -239,33 +259,6 @@
 
             50% {
                 filter: saturate(1.35) brightness(1.18);
-            }
-        }
-
-        @keyframes glitchA {
-            0%, 100% {
-                transform: translate(2px, 0);
-                opacity: 0.55;
-            }
-
-            20% {
-                transform: translate(-3px, -1px);
-                opacity: 0.82;
-            }
-
-            40% {
-                transform: translate(4px, 1px);
-                opacity: 0.42;
-            }
-
-            60% {
-                transform: translate(-2px, 0);
-                opacity: 0.74;
-            }
-
-            80% {
-                transform: translate(1px, -1px);
-                opacity: 0.5;
             }
         }
 
@@ -293,23 +286,6 @@
             85% {
                 transform: translate(-1px, 1px);
                 opacity: 0.52;
-            }
-        }
-
-        @keyframes sweep {
-            0%, 100% {
-                transform: translateY(-50%) translateX(-8%);
-                opacity: 0;
-            }
-
-            50% {
-                transform: translateY(-50%) translateX(0%);
-                opacity: 0.32;
-            }
-
-            100% {
-                transform: translateY(-50%) translateX(8%);
-                opacity: 0;
             }
         }
 
@@ -565,6 +541,7 @@
                 column.style.animationDelay = Math.random() * 5 + 's';
 
                 const charsCount = 20 + Math.floor(Math.random() * 15);
+
                 for (let j = 0; j < charsCount; j++) {
                     const char = document.createElement('span');
                     char.textContent = String(Math.floor(Math.random() * 10));
@@ -613,6 +590,7 @@
 
         createMatrixRain();
         createFlowLines();
+
         const loadingTextTimer = updateLoadingText();
 
         createUnityInstance(canvas, {
