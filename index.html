@@ -6,7 +6,13 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
     <title>Unity WebGL Player | Fingertip fracture</title>
 
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         html, body {
             width: 100%;
             height: 100%;
@@ -38,6 +44,468 @@
             background: #1F1F20;
             display: block;
         }
+
+        /* =========================
+           LoadingG 加载页
+        ========================= */
+
+        #loading-page {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            font-family: 'Orbitron', 'Microsoft YaHei', sans-serif;
+            background: radial-gradient(1200px 760px at 12% 88%, rgba(255, 70, 220, 0.18), transparent 62%), radial-gradient(980px 620px at 88% 8%, rgba(0, 255, 255, 0.12), transparent 58%), radial-gradient(820px 520px at 50% 42%, rgba(152, 82, 255, 0.18), transparent 66%), linear-gradient(145deg, #090014 0%, #16042c 46%, #2a0845 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+            #loading-page.hidden {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+            }
+
+        .matrix-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .matrix-column {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            animation: matrixFall linear infinite;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+            .matrix-column span {
+                margin: 2px 0;
+                animation: matrixGlow 2s ease-in-out infinite;
+            }
+
+        @keyframes matrixFall {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+
+        @keyframes matrixGlow {
+            0%, 100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(196, 126, 255, 0.11) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 1;
+            opacity: 0.72;
+        }
+
+        .light-rays {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(255, 86, 234, 0.24) 0%, transparent 52%), radial-gradient(ellipse at 0% 50%, rgba(0, 255, 255, 0.14) 0%, transparent 52%), radial-gradient(ellipse at 100% 50%, rgba(184, 112, 255, 0.2) 0%, transparent 54%);
+            z-index: 2;
+            animation: raysPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes raysPulse {
+            0%, 100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient( 0deg, rgba(255, 106, 239, 0.09), rgba(255, 106, 239, 0.09) 1px, transparent 1px, transparent 2px );
+            pointer-events: none;
+            z-index: 100;
+            mix-blend-mode: screen;
+        }
+
+        .loading-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .title-wrap {
+            position: relative;
+            display: inline-block;
+            padding: 0 10px;
+            margin-bottom: 10px;
+            animation: titleFloat 3.2s ease-in-out infinite;
+        }
+
+            .title-wrap::after {
+                content: '';
+                position: absolute;
+                left: -4%;
+                right: -4%;
+                top: 48%;
+                height: 16px;
+                background: linear-gradient( 90deg, transparent 0%, rgba(255, 120, 246, 0.22) 45%, rgba(0, 255, 255, 0.22) 55%, transparent 100% );
+                filter: blur(0.6px);
+                transform: translateY(-50%);
+                animation: sweep 2.2s ease-in-out infinite;
+                pointer-events: none;
+            }
+
+        .game-title {
+            position: relative;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #ff00ff, #00ffff, #ff00ff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientText 3s linear infinite, titlePulse 1.8s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 0, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.5), 0 0 90px rgba(255, 0, 255, 0.3);
+            letter-spacing: 0.15em;
+            margin: 0;
+        }
+
+            .game-title::before,
+            .game-title::after {
+                content: attr(data-text);
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                mix-blend-mode: screen;
+                opacity: 0.65;
+            }
+
+            .game-title::before {
+                color: rgba(0, 255, 255, 0.9);
+                transform: translate(2px, 0);
+                clip-path: inset(0 0 48% 0);
+                animation: glitchA 1.25s steps(2, end) infinite;
+            }
+
+            .game-title::after {
+                color: rgba(255, 75, 232, 0.88);
+                transform: translate(-2px, 0);
+                clip-path: inset(52% 0 0 0);
+                animation: glitchB 1.1s steps(2, end) infinite;
+            }
+
+        @keyframes gradientText {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        @keyframes titlePulse {
+            0%, 100% {
+                filter: saturate(1) brightness(1);
+            }
+
+            50% {
+                filter: saturate(1.35) brightness(1.18);
+            }
+        }
+
+        @keyframes glitchA {
+            0%, 100% {
+                transform: translate(2px, 0);
+                opacity: 0.55;
+            }
+
+            20% {
+                transform: translate(-3px, -1px);
+                opacity: 0.82;
+            }
+
+            40% {
+                transform: translate(4px, 1px);
+                opacity: 0.42;
+            }
+
+            60% {
+                transform: translate(-2px, 0);
+                opacity: 0.74;
+            }
+
+            80% {
+                transform: translate(1px, -1px);
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes glitchB {
+            0%, 100% {
+                transform: translate(-2px, 0);
+                opacity: 0.55;
+            }
+
+            25% {
+                transform: translate(3px, 1px);
+                opacity: 0.78;
+            }
+
+            45% {
+                transform: translate(-4px, -1px);
+                opacity: 0.36;
+            }
+
+            65% {
+                transform: translate(2px, 0);
+                opacity: 0.68;
+            }
+
+            85% {
+                transform: translate(-1px, 1px);
+                opacity: 0.52;
+            }
+        }
+
+        @keyframes sweep {
+            0%, 100% {
+                transform: translateY(-50%) translateX(-8%);
+                opacity: 0;
+            }
+
+            50% {
+                transform: translateY(-50%) translateX(0%);
+                opacity: 0.32;
+            }
+
+            100% {
+                transform: translateY(-50%) translateX(8%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes titleFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .game-subtitle {
+            font-size: clamp(1rem, 3vw, 1.8rem);
+            color: #ff00ff;
+            text-shadow: 0 0 20px rgba(255, 0, 255, 1), 0 0 40px rgba(255, 0, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.5);
+            margin-bottom: 60px;
+            letter-spacing: 0.4em;
+            animation: subtitlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes subtitlePulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.02);
+            }
+        }
+
+        .loading-container {
+            width: min(500px, 80vw);
+            margin: 0 auto;
+        }
+
+        .loading-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(30, 8, 50, 0.76);
+            border: 2px solid rgba(255, 102, 236, 0.85);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 24px rgba(193, 117, 255, 0.55), inset 0 0 16px rgba(36, 10, 62, 0.88), 0 0 44px rgba(0, 255, 255, 0.32);
+        }
+
+        .loading-progress {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient( 90deg, #00ffff 0%, #ff00ff 50%, #00ffff 100% );
+            background-size: 200% auto;
+            animation: loadingGradient 1.5s linear infinite;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 1), 0 0 30px rgba(255, 0, 255, 0.8);
+            border-radius: 4px;
+            transition: width 0.2s ease;
+        }
+
+        @keyframes loadingGradient {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #00ffff;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 1), 0 0 30px rgba(0, 255, 255, 0.8);
+            letter-spacing: 0.3em;
+            animation: blink 0.8s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .corner-decoration {
+            position: fixed;
+            width: 120px;
+            height: 120px;
+            border: 3px solid transparent;
+            border-image: linear-gradient(45deg, #ff00ff, #00ffff) 1;
+            opacity: 0.4;
+            animation: cornerGlow 3s ease-in-out infinite;
+            z-index: 5;
+        }
+
+        @keyframes cornerGlow {
+            0%, 100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .corner-top-left {
+            top: 30px;
+            left: 30px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-top-right {
+            top: 30px;
+            right: 30px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-bottom-left {
+            bottom: 30px;
+            left: 30px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-bottom-right {
+            bottom: 30px;
+            right: 30px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .flow-lines {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 3;
+            overflow: hidden;
+        }
+
+        .flow-line {
+            position: absolute;
+            width: 2px;
+            height: 80px;
+            background: linear-gradient(to bottom, transparent, #00ffff, transparent);
+            animation: flowDown 3s linear infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes flowDown {
+            0% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.5;
+            }
+
+            90% {
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        .version {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            font-size: 0.9rem;
+            color: rgba(226, 157, 255, 0.8);
+            letter-spacing: 0.2em;
+            text-shadow: 0 0 12px rgba(181, 122, 255, 0.66);
+            z-index: 10;
+        }
+
+        .warning-text {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            font-size: 0.7rem;
+            color: rgba(0, 255, 255, 0.5);
+            letter-spacing: 0.15em;
+            opacity: 0.7;
+            z-index: 10;
+        }
     </style>
 </head>
 
@@ -46,9 +514,106 @@
         <canvas id="unity-canvas" width="1920" height="1080" tabindex="-1"></canvas>
     </div>
 
+    <!-- LoadingG 加载页 -->
+    <div id="loading-page">
+        <div class="matrix-bg" id="matrixBg"></div>
+        <div class="grid-bg"></div>
+        <div class="light-rays"></div>
+        <div class="flow-lines" id="flowLines"></div>
+        <div class="scanlines"></div>
+
+        <div class="corner-decoration corner-top-left"></div>
+        <div class="corner-decoration corner-top-right"></div>
+        <div class="corner-decoration corner-bottom-left"></div>
+        <div class="corner-decoration corner-bottom-right"></div>
+
+        <div class="loading-content">
+            <div class="title-wrap">
+                <h1 class="game-title" data-text="指法碎词">指法碎词</h1>
+            </div>
+
+            <p class="game-subtitle">打字如战场！</p>
+
+            <div class="loading-container">
+                <div class="loading-bar">
+                    <div class="loading-progress" id="unity-loading-progress"></div>
+                </div>
+                <p class="loading-text" id="unity-loading-text">LOADING...</p>
+            </div>
+        </div>
+
+        <div class="version">v1.0.0 // CYBER MODE</div>
+        <div class="warning-text">SYSTEM INITIALIZING...</div>
+    </div>
+
     <script src="Build/Fingertip Fracture.loader.js"></script>
     <script>
         const canvas = document.querySelector("#unity-canvas");
+        const loadingPage = document.querySelector("#loading-page");
+        const loadingProgress = document.querySelector("#unity-loading-progress");
+        const loadingText = document.querySelector("#unity-loading-text");
+
+        function createMatrixRain() {
+            const container = document.getElementById('matrixBg');
+            const columns = 50;
+
+            for (let i = 0; i < columns; i++) {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = (i * (100 / columns)) + '%';
+                column.style.animationDuration = (8 + Math.random() * 10) + 's';
+                column.style.animationDelay = Math.random() * 5 + 's';
+
+                const charsCount = 20 + Math.floor(Math.random() * 15);
+                for (let j = 0; j < charsCount; j++) {
+                    const char = document.createElement('span');
+                    char.textContent = String(Math.floor(Math.random() * 10));
+                    char.style.fontSize = (12 + Math.random() * 6) + 'px';
+                    char.style.opacity = 0.3 + Math.random() * 0.7;
+                    column.appendChild(char);
+                }
+
+                container.appendChild(column);
+            }
+        }
+
+        function createFlowLines() {
+            const container = document.getElementById('flowLines');
+
+            for (let i = 0; i < 12; i++) {
+                const line = document.createElement('div');
+                line.className = 'flow-line';
+                line.style.left = (Math.random() * 100) + '%';
+                line.style.animationDelay = Math.random() * 3 + 's';
+                line.style.animationDuration = (2 + Math.random() * 2) + 's';
+                line.style.height = (40 + Math.random() * 80) + 'px';
+                container.appendChild(line);
+            }
+        }
+
+        function updateLoadingText() {
+            const texts = [
+                '正在初始化神经接口...',
+                '正在加载战斗词库...',
+                '正在连接矩阵网络...',
+                '正在校准输入设备...',
+                '正在准备战场环境...',
+                '系统就绪，等待指令...'
+            ];
+
+            let index = 0;
+
+            return setInterval(() => {
+                if (!loadingPage.classList.contains('hidden')) {
+                    loadingText.textContent = texts[index % texts.length];
+                    index++;
+                }
+            }, 1800);
+        }
+
+        createMatrixRain();
+        createFlowLines();
+        const loadingTextTimer = updateLoadingText();
 
         createUnityInstance(canvas, {
             dataUrl: "Build/Fingertip Fracture.data",
@@ -64,6 +629,22 @@
 
             // 如果想降低高分屏压力，可以打开这一行
             // devicePixelRatio: 1,
+        }, function (progress) {
+            const percent = Math.round(progress * 100);
+            loadingProgress.style.width = percent + "%";
+            loadingText.textContent = "LOADING... " + percent + "%";
+        }).then(function (unityInstance) {
+            loadingProgress.style.width = "100%";
+            loadingText.textContent = "系统就绪，正在进入战场...";
+
+            setTimeout(function () {
+                loadingPage.classList.add("hidden");
+                clearInterval(loadingTextTimer);
+            }, 500);
+        }).catch(function (message) {
+            loadingText.textContent = "加载失败，请刷新页面重试";
+            console.error(message);
+            alert(message);
         });
     </script>
 </body>
